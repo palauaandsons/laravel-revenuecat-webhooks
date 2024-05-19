@@ -2,7 +2,6 @@
 
 namespace PalauaAndSons\RevenueCatWebhooks\Tests;
 
-use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Route;
 use Spatie\WebhookClient\Exceptions\InvalidWebhookSignature;
@@ -19,7 +18,7 @@ class IntegrationTest extends TestCase
         Route::revenueCatWebhooks('revenuecat-webhooks');
         Route::revenueCatWebhooks('revenuecat-webhooks/{configKey}');
 
-        config(['revenuecat-webhooks.jobs' => ['my_type' => DummyJob::class]]);
+        config(['revenuecat-webhooks.jobs' => ['INITIAL_PURCHASE' => DummyJob::class]]);
         cache()->clear();
     }
 
@@ -29,8 +28,11 @@ class IntegrationTest extends TestCase
         $this->withoutExceptionHandling();
 
         $payload = [
-            'event_type' => 'my_type',
-            'key'        => 'value',
+            'api_version' => '1.0',
+            'event'       => [
+                'type' => 'INITIAL_PURCHASE',
+                'key'  => 'value',
+            ],
         ];
 
         $this->postJson('revenuecat-webhooks', $payload)
@@ -40,16 +42,17 @@ class IntegrationTest extends TestCase
 
         $webhookCall = WebhookCall::first();
 
-        $this->assertEquals('my_type', $webhookCall->payload['event_type']);
+        $this->assertEquals('INITIAL_PURCHASE', $webhookCall->payload['event']['type']);
         $this->assertEquals($payload, $webhookCall->payload);
         $this->assertNull($webhookCall->exception);
 
-        Event::assertDispatched('revenuecat-webhooks::my_type', function ($event, $eventPayload) use ($webhookCall) {
-            $this->assertInstanceOf(WebhookCall::class, $eventPayload);
-            $this->assertEquals($webhookCall->id, $eventPayload->id);
+        Event::assertDispatched('revenuecat-webhooks::INITIAL_PURCHASE',
+            function ($event, $eventPayload) use ($webhookCall) {
+                $this->assertInstanceOf(WebhookCall::class, $eventPayload);
+                $this->assertEquals($webhookCall->id, $eventPayload->id);
 
-            return true;
-        });
+                return true;
+            });
 
         $this->assertEquals($webhookCall->id, cache('dummyjob')->id);
     }
@@ -66,12 +69,13 @@ class IntegrationTest extends TestCase
 
         $webhookCall = WebhookCall::first();
 
-        $this->assertFalse(isset($webhookCall->payload['event_type']));
+        $this->assertFalse(isset($webhookCall->payload['event']['type']));
         $this->assertEquals(['invalid_payload'], $webhookCall->payload);
 
-        $this->assertEquals('Webhook call id `1` did not contain a type. Valid RevenueCat webhook calls should always contain a type.', $webhookCall->exception['message']);
+        $this->assertEquals('Webhook call id `1` did not contain a type. Valid RevenueCat webhook calls should always contain a type.',
+            $webhookCall->exception['message']);
 
-        Event::assertNotDispatched('revenuecat-webhooks::my_type');
+        Event::assertNotDispatched('revenuecat-webhooks::INITIAL_PURCHASE');
 
         $this->assertNull(cache('dummyjob'));
     }
@@ -84,8 +88,11 @@ class IntegrationTest extends TestCase
         $this->withoutExceptionHandling();
 
         $payload = [
-            'event_type' => 'my_type',
-            'key'        => 'value',
+            'api_version' => '1.0',
+            'event'       => [
+                'type' => 'INITIAL_PURCHASE',
+                'key'  => 'value',
+            ],
         ];
 
         $this->postJson('revenuecat-webhooks', $payload, ['Authorization' => 'Bearer ABC'])
@@ -95,16 +102,17 @@ class IntegrationTest extends TestCase
 
         $webhookCall = WebhookCall::first();
 
-        $this->assertEquals('my_type', $webhookCall->payload['event_type']);
+        $this->assertEquals('INITIAL_PURCHASE', $webhookCall->payload['event']['type']);
         $this->assertEquals($payload, $webhookCall->payload);
         $this->assertNull($webhookCall->exception);
 
-        Event::assertDispatched('revenuecat-webhooks::my_type', function ($event, $eventPayload) use ($webhookCall) {
-            $this->assertInstanceOf(WebhookCall::class, $eventPayload);
-            $this->assertEquals($webhookCall->id, $eventPayload->id);
+        Event::assertDispatched('revenuecat-webhooks::INITIAL_PURCHASE',
+            function ($event, $eventPayload) use ($webhookCall) {
+                $this->assertInstanceOf(WebhookCall::class, $eventPayload);
+                $this->assertEquals($webhookCall->id, $eventPayload->id);
 
-            return true;
-        });
+                return true;
+            });
 
         $this->assertEquals($webhookCall->id, cache('dummyjob')->id);
     }
@@ -118,8 +126,11 @@ class IntegrationTest extends TestCase
         $this->expectException(InvalidWebhookSignature::class);
 
         $payload = [
-            'event_type' => 'my_type',
-            'key'        => 'value',
+            'api_version' => '1.0',
+            'event'       => [
+                'type' => 'INITIAL_PURCHASE',
+                'key'  => 'value',
+            ],
         ];
 
         $this->postJson('revenuecat-webhooks', $payload, ['Authorization' => 'Invalid Bearer Token'])
@@ -127,7 +138,7 @@ class IntegrationTest extends TestCase
 
         $this->assertCount(0, WebhookCall::get());
 
-        Event::assertNotDispatched('revenuecat-webhooks::my_type');
+        Event::assertNotDispatched('revenuecat-webhooks::INITIAL_PURCHASE');
 
         $this->assertNull(cache('dummyjob'));
     }

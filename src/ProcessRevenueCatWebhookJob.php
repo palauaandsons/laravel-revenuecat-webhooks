@@ -9,13 +9,15 @@ class ProcessRevenueCatWebhookJob extends ProcessWebhookJob
 {
     public function handle()
     {
-        if (! isset($this->webhookCall->payload['event_type']) || $this->webhookCall->payload['event_type'] === '') {
+        $event = $this->webhookCall->payload['event'] ?? null;
+
+        if (! $event || ! isset($event['type']) || $event['type'] === '') {
             throw WebhookFailed::missingType($this->webhookCall);
         }
 
-        event("revenuecat-webhooks::{$this->webhookCall->payload['event_type']}", $this->webhookCall);
+        event("revenuecat-webhooks::{$event['type']}", $this->webhookCall);
 
-        $jobClass = $this->determineJobClass($this->webhookCall->payload['event_type']);
+        $jobClass = $this->determineJobClass($event['type']);
 
         if ($jobClass === '') {
             return;

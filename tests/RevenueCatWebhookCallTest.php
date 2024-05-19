@@ -20,11 +20,17 @@ class RevenueCatWebhookCallTest extends TestCase
 
         Event::fake();
 
-        config(['revenuecat-webhooks.jobs' => ['my_type' => DummyJob::class]]);
+        config(['revenuecat-webhooks.jobs' => ['INITIAL_PURCHASE' => DummyJob::class]]);
 
         $this->webhookCall = WebhookCall::create([
             'name'    => 'revenuecat',
-            'payload' => ['event_type' => 'my_type', 'name' => 'value'],
+            'payload' => [
+                'api_version' => '1.0',
+                'event'       => [
+                    'type' => 'INITIAL_PURCHASE',
+                    'name' => 'value',
+                ],
+            ],
             'url'     => 'https://example.com/revenuecat-webhooks',
         ]);
 
@@ -68,12 +74,13 @@ class RevenueCatWebhookCallTest extends TestCase
 
         $webhookCall = $this->webhookCall;
 
-        Event::assertDispatched("revenuecat-webhooks::{$webhookCall->payload['event_type']}", function ($event, $eventPayload) use ($webhookCall) {
-            $this->assertInstanceOf(WebhookCall::class, $eventPayload);
-            $this->assertEquals($webhookCall->id, $eventPayload->id);
+        Event::assertDispatched("revenuecat-webhooks::{$webhookCall->payload['event']['type']}",
+            function ($event, $eventPayload) use ($webhookCall) {
+                $this->assertInstanceOf(WebhookCall::class, $eventPayload);
+                $this->assertEquals($webhookCall->id, $eventPayload->id);
 
-            return true;
-        });
+                return true;
+            });
 
         $this->assertNull(cache('dummyjob'));
     }
