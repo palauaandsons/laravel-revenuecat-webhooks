@@ -15,6 +15,8 @@ return [
      *
      * You can find a list of RevenueCat webhook events here:
      * https://www.revenuecat.com/docs/integrations/webhooks/event-types-and-fields
+     *
+     * Important: use lowercase for your event names.
      */
     'jobs' => [
         // 'initial_purchase' => \App\Jobs\RevenueCatWebhooks\InitialPurchase::class,

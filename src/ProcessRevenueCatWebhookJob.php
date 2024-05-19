@@ -15,9 +15,12 @@ class ProcessRevenueCatWebhookJob extends ProcessWebhookJob
             throw WebhookFailed::missingType($this->webhookCall);
         }
 
-        event("revenuecat-webhooks::{$event['type']}", $this->webhookCall);
+        // Normalize the event type to lowercase, RevenueCat sends them as uppercase
+        $eventType = strtolower($event['type']);
 
-        $jobClass = $this->determineJobClass($event['type']);
+        event("revenuecat-webhooks::{$eventType}", $this->webhookCall);
+
+        $jobClass = $this->determineJobClass($eventType);
 
         if ($jobClass === '') {
             return;

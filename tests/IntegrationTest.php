@@ -18,7 +18,7 @@ class IntegrationTest extends TestCase
         Route::revenueCatWebhooks('revenuecat-webhooks');
         Route::revenueCatWebhooks('revenuecat-webhooks/{configKey}');
 
-        config(['revenuecat-webhooks.jobs' => ['INITIAL_PURCHASE' => DummyJob::class]]);
+        config(['revenuecat-webhooks.jobs' => ['initial_purchase' => DummyJob::class]]);
         cache()->clear();
     }
 
@@ -46,7 +46,7 @@ class IntegrationTest extends TestCase
         $this->assertEquals($payload, $webhookCall->payload);
         $this->assertNull($webhookCall->exception);
 
-        Event::assertDispatched('revenuecat-webhooks::INITIAL_PURCHASE',
+        Event::assertDispatched('revenuecat-webhooks::initial_purchase',
             function ($event, $eventPayload) use ($webhookCall) {
                 $this->assertInstanceOf(WebhookCall::class, $eventPayload);
                 $this->assertEquals($webhookCall->id, $eventPayload->id);
@@ -106,7 +106,7 @@ class IntegrationTest extends TestCase
         $this->assertEquals($payload, $webhookCall->payload);
         $this->assertNull($webhookCall->exception);
 
-        Event::assertDispatched('revenuecat-webhooks::INITIAL_PURCHASE',
+        Event::assertDispatched('revenuecat-webhooks::initial_purchase',
             function ($event, $eventPayload) use ($webhookCall) {
                 $this->assertInstanceOf(WebhookCall::class, $eventPayload);
                 $this->assertEquals($webhookCall->id, $eventPayload->id);
