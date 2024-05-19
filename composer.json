@@ -1,0 +1,61 @@
+{
+  "name": "palauaandsons/laravel-revenuecat-webhooks",
+  "description": "Handle RevenueCat webhooks in a Laravel application",
+  "keywords": [
+    "revenuecat",
+    "laravel-revenuecat-webhooks"
+  ],
+  "homepage": "https://github.com/palauaandsons/laravel-revenuecat-webhooks",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Isern Palaus",
+      "email": "isern@palauaandsons.com",
+      "homepage": "https://palauaandsons.com",
+      "role": "Developer"
+    },
+    {
+      "name": "Freek Van der Herten",
+      "email": "freek@spatie.be",
+      "homepage": "https://spatie.be",
+      "role": "Developer"
+    }
+  ],
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "require": {
+    "php": "^8.0",
+    "illuminate/support": "^10.0",
+    "spatie/laravel-webhook-client": "^3.0"
+  },
+  "require-dev": {
+    "laravel/pint": "^1.10",
+    "orchestra/testbench": "^8.0",
+    "phpunit/phpunit": "^10.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "PalauaAndSons\\RevenueCatWebhooks\\": "src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "PalauaAndSons\\RevenueCatWebhooks\\Tests\\": "tests"
+    }
+  },
+  "scripts": {
+    "test": "vendor/bin/phpunit",
+    "test-coverage": "vendor/bin/phpunit --coverage-html coverage",
+    "format": "vendor/bin/pint"
+  },
+  "config": {
+    "sort-packages": true
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "PalauaAndSons\\RevenueCatWebhooks\\RevenueCatWebhooksServiceProvider"
+      ]
+    }
+  }
+}
